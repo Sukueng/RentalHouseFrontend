@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Header from './Header'
+import { useTypewriter, Cursor } from 'react-simple-typewriter'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import axios from "axios"
 import { NavDropdown, NavItem, Nav, Button } from "react-bootstrap"
@@ -8,6 +9,14 @@ import swal from "sweetalert2"
 // import "./CreatePost.css"
 
 function CreatePost() {
+    const [effect] = useTypewriter({
+        words: ["...", "..."],
+        loop: {},
+        typeSpeed: 300,
+        deleteSpeed: 100
+    })
+    const [loading, setloading] = useState(false)
+
     const mail = localStorage.getItem("email");
     const navigate = useNavigate();
 
@@ -34,11 +43,16 @@ function CreatePost() {
     // get post for the specific user
     const getPost = () => {
         axios.post("https://rentalhousebackend-api.onrender.com/post/getPostByMail", { email: mail }).then((result) => {
-            console.log(result.data)
+            
+            console.log(loading)
+            // console.log(result.data)
+
             setpost(result.data)
 
         }).catch((error) => {
             console.log("error accured")
+        }).finally(() => {
+            setloading(false)
         })
     }
 
@@ -51,25 +65,29 @@ function CreatePost() {
         const formattedDate = `${year}-${month}-${day}`;
         setdata({ ...data, posteddata: formattedDate.toString() })
 
-        
 
-        const getPost = () => {
-            axios.post("https://rentalhousebackend-api.onrender.com/post/getPostByMail", { email: mail }).then((result) => {
-                console.log(result.data)
-                // setpost(prevPost => [...prevPost, ...result.data]);
-                setpost(result.data)
 
-            }).catch((error) => {
-                console.log("error accured")
-            })
-        }
+        // const getPost = () => {
+        //     axios.post("https://rentalhousebackend-api.onrender.com/post/getPostByMail", { email: mail }).then((result) => {
+        //         console.log(result.data)
+        //         setloading(true)
+        //         // setpost(prevPost => [...prevPost, ...result.data]);
+        //         setpost(result.data)
+
+        //     }).catch((error) => {
+        //         console.log("error accured")
+        //     }).finally(() => {
+        //         setloading(false)
+        //     })
+        // }
+        setloading(true)
         getPost()
 
 
     }, []);
 
 
-//convert image into hex code
+    //convert image into hex code
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -101,7 +119,7 @@ function CreatePost() {
             }).catch((error) => {
                 console.log("error accured")
             })
-        }else{
+        } else {
             swal.fire('Cancelled', 'All fileds are required', 'error')
         }
 
@@ -154,16 +172,21 @@ function CreatePost() {
                 <div className="row ">
                     <div className="col-10">
                         <h5 className='text-white text-center'>My Post</h5>
-                        {/* {post.length < 1 ? <h3 className='text-center text-white'>No post yet</h3> : ""} */}
                     </div>
+
                     <div className="col d-flex justify-content-start ms-4">
                         <button className='btn btn-sm btn-success' style={{ fontSize: '14px', padding: '4px 8px' }} onClick={popupWindow}>New Post</button>
                     </div>
                 </div>
+                {loading === true ? <div className='d-flex justify-content-center mt-5'>
+                        <h1 className='text-center text-white'>Loading <span className='text-white'>{effect}</span></h1>
+                    </div> : ''}
                 <div className="row mt-4 " style={{ backgroundColor: '#676C6C ', borderRadius: '10px' }}>
+
+
                     {post.map((item) => (
 
-                        <div className="col-12 col-md-3 col-lg-3 py-3">
+                        <div className="col-12 col-md-3 col-lg-3 py-3" >
                             <div className="card h-80" style={{ overflow: 'hidden' }}>
                                 <div className="image-container" style={{ width: '300px', height: '200px', overflow: 'hidden' }}>
                                     <img className='img-fluid rounded object-fit-cover h-100' src={item.imageurl} alt="Base64 to Image" />

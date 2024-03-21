@@ -3,22 +3,34 @@ import Header from './Header'
 import './Home.css';
 import { Button } from 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTypewriter, Cursor } from 'react-simple-typewriter'
 import axios from "axios"
 
 function Post() {
+    const [effect] = useTypewriter({
+        words: ["...", "..."],
+        loop: {},
+        typeSpeed: 300,
+        deleteSpeed: 100
+    })
+
     const [search, setsearch] = useState("")
+    const [loading, setloading] = useState(false)
     console.log(search)
 
     const [post, setpost] = useState([])
 
     useEffect(() => {
         const getPost = () => {
+            setloading(true)
             axios.get("https://rentalhousebackend-api.onrender.com/post/getall ").then((result) => {
                 console.log(result.data)
                 // setpost(prevPost => [...prevPost, ...result.data]);
                 setpost(result.data)
-            }).catch((error)=>{
+            }).catch((error) => {
                 console.log("error accured")
+            }).finally(() => {
+                setloading(false)
             })
         }
         getPost()
@@ -34,12 +46,20 @@ function Post() {
 
 
             <div className="container">
+
                 <div className="searchconatiner d-flex justify-content-end">
                     <input type="search" id="form1" className="form-control mx-2" placeholder='Search by City' style={{ maxWidth: '300px' }} onChange={(e) => setsearch(e.target.value)} />
                     <img src="/images/search.png" style={{ height: '30px', width: '30px' }} className='p'></img>
                 </div>
 
                 <div className="row">
+
+
+                    {loading === true ? <div className='d-flex justify-content-center mt-5'>
+                        <h1 className='text-center text-white'>Loading <span className='text-white'>{effect}</span></h1>
+                    </div> : ''}
+
+
                     {post.filter((item) => {
                         return search.toLowerCase === '' ? item : item.district.toLowerCase().includes(search)
                     }).map((item) => (
